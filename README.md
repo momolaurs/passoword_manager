@@ -26,3 +26,6 @@ Version 1.0:
 - Add passwords
 - Delete passwords
 - Ugly UI
+
+## Contact
+For any issue, error, bug, or just to fangirl about Vigenère Ciphers, feel free to contact the author, Laura Moset Estruch. Email: lauramosetestruch@gmail.com || Linkedin: [HERE](https://www.linkedin.com/in/laura-moset-estruch-56b452237/)

@@ -15,7 +15,7 @@ A simple password manager that utilizes the [Vigenère cipher](https://en.wikipe
 > 💡 **Note:**
 > 1. Make sure you remember these code words as you will need them every time you open the file.
 > 
-> 2. These words are case sensitive; changes in capitalization will result in errors!
+> 2. These words are case sensitive; changes in capitalization will mean the passwords are not correctly decoded!
 > 
 > 3. The accepted characters are: "A1234567890'¡qwertyuiop`+asdfghjklñçzxcvbnm,.-!\u00b7$%&/()=?¿QWERTYUIOP^*ASDFGHJKL\u00d1\u00a8\u00c7ZXCVBNM;:_\\|@#~€¬{[]}-" any different input will result in errors.
 - Then, you can freely view, add, and delete your passwords. You will be able to see the decoded version as you input the correct code words; anyone else who doesn't know will only see the encoded version.

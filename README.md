@@ -22,6 +22,7 @@ A simple password manager that utilizes the [Vigenère cipher](https://en.wikipe
 
 ## Features
 Version 1.0:
-- View passwords
+- View/Search passwords
 - Add passwords
-- Delte passwords
+- Delete passwords
+- Ugly UI

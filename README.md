@@ -12,8 +12,9 @@ A simple password manager that utilizes the [Vigenère cipher](https://en.wikipe
 ## How it works
 
 - After running `password_app.py`, a window will pop up asking for your name and two code words.
-> 💡 **Note:** make sure you remember these code words as you will need them every time you open the file.
-> these words are case sensitive, changes in capitalization will result in errors
+> 💡 **Note:**
+> \n 1. Make sure you remember these code words as you will need them every time you open the file.
+> These words are case sensitive; changes in capitalization will result in errors!
 > The accepted characters are: "A1234567890'¡qwertyuiop`+asdfghjklñçzxcvbnm,.-!\u00b7$%&/()=?¿QWERTYUIOP^*ASDFGHJKL\u00d1\u00a8\u00c7ZXCVBNM;:_\\|@#~€¬{[]}-" any different input will result in errors.
 - Then, you can freely view, add, and delete your passwords. You will be able to see the decoded version as you input the correct code words; anyone else who doesn't know will only see the encoded version.
 

@@ -2,9 +2,10 @@ import sqlite3
 import sys
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QLabel, QLineEdit, QPushButton, QScrollArea,
-    QVBoxLayout, QMessageBox, QInputDialog, QDialog, QListWidget
+    QVBoxLayout, QMessageBox, QInputDialog, QDialog, QListWidget, QHBoxLayout, QFrame, QTextEdit   
 )
-from vigenere_creation import duplicate_word, encrypt, decrypt, steps_for_encrypting,reorder_ids, reorder_ids_alphabetically, ABC
+from PyQt6.QtCore import Qt
+from vigenere_creation import duplicate_word, encrypt, decrypt, steps_for_encrypting,reorder_ids, reorder_ids_alphabetically, vig_table, visualize_table, print_table, ABC
 
 
 # Connect to SQL database
@@ -172,48 +173,234 @@ class InfoDialog(QDialog):
         else:
             QMessageBox.warning(self, "Error", "Password information not found.")
 
+class EncryptDialog(QDialog):
+    def __init__(self, keyword1, keyword2, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Encrypt Text")
+        self.resize(300, 150)
 
+        self.inputs = [keyword1, keyword2]
+
+        layout = QVBoxLayout()
+
+        #get text to encrypt
+        self.text_input = QLineEdit()
+        layout.addWidget(self.text_input)
+
+        #encrypt button
+        encrypt_button = QPushButton("Encrypt")
+        encrypt_button.clicked.connect(self.encrypt_text)
+        layout.addWidget(encrypt_button)
+
+        #cancel button
+        cancel_button = QPushButton("Cancel")
+        cancel_button.clicked.connect(self.reject)
+        layout.addWidget(cancel_button)
+
+        self.setLayout(layout)
+
+    def encrypt_text(self):
+        text = self.text_input.text()
+        _, encrypt_kw, _, table = steps_for_encrypting(self.inputs[0], self.inputs[1], text)
+        encrypted_text = encrypt(encrypt_kw, text, table)
+
+        # Create a pop-up dialog to show encrypted text
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Encrypted Result")
+        dialog.resize(400, 200)
+
+        layout = QVBoxLayout(dialog)
+
+        text_display = QTextEdit()
+        text_display.setReadOnly(True)
+        text_display.setPlainText(encrypted_text)  # This allows copy & paste
+        layout.addWidget(text_display)
+
+        close_button = QPushButton("Close")
+        close_button.clicked.connect(dialog.accept)
+        layout.addWidget(close_button)
+
+        dialog.exec()
+
+class DecryptDialog(QDialog):
+    def __init__(self, keyword1, keyword2, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Decrypt Text")
+        self.resize(300, 150)
+
+        self.inputs = [keyword1, keyword2]
+
+        layout = QVBoxLayout()
+
+        #get text to decrypt
+        self.text_input = QLineEdit()
+        layout.addWidget(self.text_input)
+
+        #decrypt button
+        decrypt_button = QPushButton("Decrypt")
+        decrypt_button.clicked.connect(self.decrypt_text)
+        layout.addWidget(decrypt_button)
+
+        #cancel button
+        cancel_button = QPushButton("Cancel")
+        cancel_button.clicked.connect(self.reject)
+        layout.addWidget(cancel_button)
+
+        self.setLayout(layout)
+
+    def decrypt_text(self):
+        text = self.text_input.text()
+        _, decrypt_kw, _, table = steps_for_encrypting(self.inputs[0], self.inputs[1], text)
+        decrypted_text = decrypt(decrypt_kw, text, table)
+
+        # Create a pop-up dialog to show decrypted text
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Decrypted Result")
+        dialog.resize(400, 200)
+
+        layout = QVBoxLayout(dialog)
+
+        text_display = QTextEdit()
+        text_display.setReadOnly(True)
+        text_display.setPlainText(decrypted_text)  # This allows copy & paste
+        layout.addWidget(text_display)
+
+        close_button = QPushButton("Close")
+        close_button.clicked.connect(dialog.accept)
+        layout.addWidget(close_button)
+
+        dialog.exec()
 class SecondWindow(QWidget):
     def __init__(self, inputs):
         super().__init__()
         self.setWindowTitle("Password Manager")
         self.resize(400, 300)
 
-        self.inputs = inputs  # Save for encryption
+        self.inputs = inputs
 
-        layout = QVBoxLayout()
+        # --- Main layout ---
+        main_layout = QVBoxLayout(self)
 
-        # Greeting
+        # --- Top bar ---
+        top_bar = QHBoxLayout()
+        top_bar.addStretch() 
+
+        self.menu_button = QPushButton("☰")
+        self.menu_button.setFixedWidth(40)
+        self.menu_button.clicked.connect(self.toggle_side_menu)
+        top_bar.addWidget(self.menu_button)
+
+        main_layout.addLayout(top_bar)
+
+        # --- Central content layout ---
+        self.content_layout = QHBoxLayout()
+
+        # --- Side menu ---
+        self.side_menu = QFrame()
+        self.side_menu.setFrameShape(QFrame.Shape.StyledPanel)
+        self.side_menu.setFixedHeight(300)
+        self.side_menu.setFixedWidth(150)
+        self.side_menu.setVisible(False) 
+        
+
+        side_menu_layout = QVBoxLayout()
+        side_menu_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+
+        side_button1 = QPushButton("Create Vigenere Table")
+        side_button2 = QPushButton("Encrypt Text")
+        side_button3 = QPushButton("Decrypt Text")
+        side_button4 = QPushButton("Change code words")
+
+        side_button1.clicked.connect(self.visualize_table)
+        side_button2.clicked.connect(self.encrypt_text)
+        side_button3.clicked.connect(self.decrypt_text)
+        side_button4.clicked.connect(self.change_code_words)
+
+        # Add more side buttons here
+
+        side_menu_layout.addWidget(side_button1)
+        side_menu_layout.addWidget(side_button2)
+        side_menu_layout.addWidget(side_button3)
+        side_menu_layout.addWidget(side_button4)
+        self.side_menu.setLayout(side_menu_layout)
+
+
+
+        # --- Main content area ---
+        self.main_content = QVBoxLayout()
+
         greeting = QLabel(f"Welcome, {inputs[0]}!")
-        layout.addWidget(greeting)
+        greeting.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.main_content.addWidget(greeting)
 
-        # Search bar
         self.search_bar = QLineEdit()
         self.search_bar.setPlaceholderText("Search for a password...")
         self.search_bar.textChanged.connect(self.search_passwords)
-        layout.addWidget(self.search_bar)
+        self.main_content.addWidget(self.search_bar)
 
-        # Add password button
         self.add_btn = QPushButton("Add a new password")
         self.add_btn.clicked.connect(self.add_password)
-        layout.addWidget(self.add_btn)
+        self.main_content.addWidget(self.add_btn)
 
-        # Delete password button
         self.delete_btn = QPushButton("Delete a password")
         self.delete_btn.clicked.connect(self.delete_password)
-        layout.addWidget(self.delete_btn)
+        self.main_content.addWidget(self.delete_btn)
 
-        # View passwords button
         self.view_btn = QPushButton("View all passwords")
         self.view_btn.clicked.connect(self.view_passwords)
-        layout.addWidget(self.view_btn)
+        self.main_content.addWidget(self.view_btn)
 
-        self.setLayout(layout)
+        self.content_layout.addLayout(self.main_content)
+        self.content_layout.addWidget(self.side_menu)
+
+        main_layout.addLayout(self.content_layout)
+        
+
+    def toggle_side_menu(self):
+        self.side_menu.setVisible(not self.side_menu.isVisible())
+    
+    def visualize_table(self):
+        table = vig_table(self.inputs[1])
+        output_lines = visualize_table(table)  # must return a list of strings
+
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Password Table")
+        dialog.resize(700, 500)
+
+        layout = QVBoxLayout(dialog)
+
+        text_box = QTextEdit()
+        text_box.setReadOnly(True)
+
+        # 👇 Convert list of lines to one big string for display
+        text_output = '\n'.join(' '.join(map(str, row)) for row in output_lines)
+        text_box.setPlainText(text_output)
+
+        layout.addWidget(text_box)
+
+        close_button = QPushButton("Close")
+        close_button.clicked.connect(dialog.close)
+        layout.addWidget(close_button)
+
+        dialog.exec()
+    
+    def encrypt_text(self):
+        dialog = EncryptDialog(self.inputs[1], self.inputs[2], self)
+        dialog.exec()
+    
+    def decrypt_text(self):
+        dialog = DecryptDialog(self.inputs[1], self.inputs[2], self)
+        dialog.exec()
+    
+    def change_code_words(self):
+        self.first_window = Login()
+        self.first_window.show()
+        self.hide()
     
     def search_passwords(self):
         dialog = InfoDialog(self.inputs[1], self.inputs[2], self)
         dialog.exec()
-
 
     def add_password(self):
         name, ok1 = QInputDialog.getText(self, "Add Password", "App/Service:")
@@ -317,10 +504,11 @@ class Login(QWidget):
         self.submit_btn.clicked.connect(self.open_second_window)
         self.layout.addWidget(self.submit_btn)
 
-        # Connect Enter key press in any input field to trigger submission
+        
         self.input1.returnPressed.connect(self.open_second_window)
         self.input2.returnPressed.connect(self.open_second_window)
         self.input3.returnPressed.connect(self.open_second_window)
+
 
         self.setLayout(self.layout)
         self.second_window = None
